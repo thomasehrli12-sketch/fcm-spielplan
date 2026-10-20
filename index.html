@@ -318,6 +318,19 @@ html:not([data-team="2"]) .t2, html[data-team="2"] .t1{display:none !important}
 :root:not([data-team="2"]){--green:#35924c;--green-soft:#e3f2e6}
 @media (prefers-color-scheme:dark){:root:not([data-team="2"]):not([data-theme="light"]){--green:#48a862;--green-soft:#1e3325}}
 :root[data-theme="dark"]:not([data-team="2"]){--green:#48a862;--green-soft:#1e3325}
+
+/* Wetter am Spieltag */
+.wx{display:inline-flex;align-items:center;gap:10px;margin-top:14px;padding:7px 14px 7px 10px;border:2px solid var(--chalk);border-radius:999px;
+  background:rgba(10,40,24,.38);font-size:.88rem;line-height:1.3;max-width:100%}
+.wx-ico{font-size:1.5rem;line-height:1}
+.wx-txt{min-width:0}
+.wx-lbl{display:block;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;opacity:.78;font-weight:600}
+.wx-txt b{font-weight:700}
+.wx-src{color:inherit;opacity:.65;font-size:.7rem;align-self:end;margin-left:2px}
+@media (max-width:640px){.wx{display:flex;width:auto;margin:12px 0 0;border-radius:12px;text-align:left;font-size:.84rem}.wx-txt{flex:1}}
+/* Teilen */
+button.btn{font-family:inherit;line-height:inherit;cursor:pointer}
+.btn.share{background:transparent}
 </style>
 </head>
 <body>
@@ -445,6 +458,7 @@ M42 186 H48 L47.2 203 H42.8 Z"/>
         <div><dd><span class="chalk">14:15 Uhr</span></dd></div>
         <div><dd>Günter-Kausch-Stadion<br>Isarauenstr. 48, Mittenwald</dd></div>
       </dl>
+      <div class="wx"><span class="wx-ico" aria-hidden="true">🌧️</span><span class="wx-txt"><span class="wx-lbl">Wetter am Spieltag</span><b>Leichter Regen</b> · 1 bis 10 °C · Regen 75 % (8 l/m²)</span><a class="wx-src" href="https://www.bergfex.de/sommer/karwendel-mittenwald/wetter/" target="_blank" rel="noopener">bergfex</a></div>
     </div>
     <div class="countdown t1" data-kick="2026-10-25T14:15:00+01:00" aria-label="Zeit bis zum Anstoß">
       <div><b class="cd-d">6</b><span>Tage</span></div>
@@ -454,6 +468,7 @@ M42 186 H48 L47.2 203 H42.8 Z"/>
     <div class="actions t1">
       <a class="btn" href="https://www.google.de/maps/search/?api=1&query=G%C3%BCnter-Kausch-Stadion%20Isarauenstr.%2048%2082481%20Mittenwald" target="_blank" rel="noopener"><span aria-hidden="true">🏟️</span> Route zum Stadion</a>
       <a class="btn ghost" href="https://service.bfv.de/rest/icsexport/Spielplan?staffel=030RC3EPD0000027VS5489BTVVR5L0PB-G&id=00ES8GNHJC000010VV0AG08LVUPGND5I" target="_blank" rel="noopener"><span aria-hidden="true">📅</span> Spielplan in den Kalender</a>
+      <button class="btn ghost share" type="button"><span aria-hidden="true">📲</span> Spiel teilen</button>
     </div>
 
     <div class="t2">
@@ -471,6 +486,7 @@ M42 186 H48 L47.2 203 H42.8 Z"/>
         <div><dd><span class="chalk">16:00 Uhr</span></dd></div>
         <div><dd>Sportplatz Seeshaupt<br>Bahnhofstr. 12, Seeshaupt</dd></div>
       </dl>
+      <div class="wx"><span class="wx-ico" aria-hidden="true">📅</span><span class="wx-txt"><span class="wx-lbl">Wetter am Spieltag</span>Vorhersage ab Fr, 23.10. verfügbar</span><a class="wx-src" href="https://www.bergfex.de/sommer/karwendel-mittenwald/wetter/" target="_blank" rel="noopener">bergfex</a></div>
     </div>
     <div class="countdown t2" data-kick="2026-10-31T16:00:00+01:00" aria-label="Zeit bis zum Anstoß">
       <div><b class="cd-d">–</b><span>Tage</span></div>
@@ -480,6 +496,7 @@ M42 186 H48 L47.2 203 H42.8 Z"/>
     <div class="actions t2">
       <a class="btn" href="https://www.google.de/maps/search/?api=1&query=Sportplatz%20Seeshaupt%20Bahnhofstr.%2012%2082402%20Seeshaupt" target="_blank" rel="noopener"><span aria-hidden="true">🏟️</span> Route zum Stadion</a>
       <a class="btn ghost" href="https://service.bfv.de/rest/icsexport/Spielplan?staffel=031568MA1G000000VS5489BUVSBBVPEU-G&id=00ES8GNHJC000010VV0AG08LVUPGND5I" target="_blank" rel="noopener"><span aria-hidden="true">📅</span> Spielplan in den Kalender</a>
+      <button class="btn ghost share" type="button"><span aria-hidden="true">📲</span> Spiel teilen</button>
     </div>
   </section>
 
@@ -706,6 +723,28 @@ M42 186 H48 L47.2 203 H42.8 Z"/>
   window.addEventListener("hashchange",show);
   show();
 
+
+  /* Spiel teilen */
+  var shareBtns=document.querySelectorAll(".btn.share");
+  function shareText(){
+    var t=root.getAttribute("data-team")==="2"?"2":"1";
+    var box=document.querySelector(".board > div.t"+t);
+    var q=function(sel){var e=box.querySelector(sel);return e?e.textContent.replace(/\u00a0/g," ").replace(/\s+/g," ").trim():"";};
+    var dd=box.querySelectorAll(".m-info dd");
+    var ort=dd[2]?dd[2].innerHTML.replace(/<br\s*\/?>/gi,", ").replace(/<[^>]+>/g,"").replace(/&nbsp;/g," ").trim():"";
+    var heim=/Heimspiel/.test(q(".eyebrow"));
+    var url="https://fcm-spielplan.de/"+(t==="2"?"#zweite":"#erste");
+    return {url:url, title:"FC Mittenwald – Nächstes Spiel",
+      text:"⚽ "+(heim?"Heimspiel":"Nächstes Spiel")+(t==="2"?" der Zweiten":"")+": "+q(".m-home span")+" – "+q(".m-away span")+"\n"+
+           "📅 "+(dd[0]?dd[0].textContent.trim():"")+", "+(dd[1]?dd[1].textContent.trim():"")+"\n"+
+           "📍 "+ort+"\n"+
+           (heim?"Kommt vorbei und unterstützt unsere Jungs! 💚🤍\n":"Grün-Weiß braucht euch! 💚🤍\n")};
+  }
+  for(var k=0;k<shareBtns.length;k++) shareBtns[k].addEventListener("click",function(){
+    var d=shareText();
+    if(navigator.share){ navigator.share({title:d.title,text:d.text,url:d.url}).catch(function(){}); }
+    else { window.open("https://wa.me/?text="+encodeURIComponent(d.text+d.url),"_blank","noopener"); }
+  });
   /* Countdowns */
   var cds=document.querySelectorAll(".countdown[data-kick]");
   function tick(){
