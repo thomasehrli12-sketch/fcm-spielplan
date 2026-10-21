@@ -331,6 +331,21 @@ html:not([data-team="2"]) .t2, html[data-team="2"] .t1{display:none !important}
 /* Teilen */
 button.btn{font-family:inherit;line-height:inherit;cursor:pointer}
 .btn.share{background:transparent}
+
+/* Robust bei großer Systemschrift / älteren Handys */
+html,body{overflow-x:hidden}
+@supports (overflow-x:clip){html,body{overflow-x:clip}}
+.wrap{grid-template-columns:minmax(0,1fr)}
+.wrap>*,.board>*,.cols>*{min-width:0}
+.wx-txt,.m-info dd{overflow-wrap:anywhere}
+@media (max-width:640px){
+  .board{grid-template-columns:minmax(0,1fr)}
+  .team-tabs a{white-space:normal;line-height:1.15}
+  .countdown div{min-width:0}
+  .m-team{width:min(124px,34vw)}
+  .m-home{left:calc(50% - var(--d)/2 - min(62px,17vw))}
+  .m-away{left:calc(50% + var(--d)/2 - min(62px,17vw))}
+}
 </style>
 </head>
 <body>
