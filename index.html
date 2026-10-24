@@ -346,6 +346,21 @@ html,body{overflow-x:hidden}
   .m-home{left:calc(50% - var(--d)/2 - min(62px,17vw))}
   .m-away{left:calc(50% + var(--d)/2 - min(62px,17vw))}
 }
+
+/* Instagram */
+.head-links{display:flex;gap:8px;align-self:start;flex-wrap:wrap}
+.ig-pill{display:inline-flex;gap:6px;align-items:center;padding:6px 12px;border:1px solid var(--line);border-radius:999px;
+  color:var(--fg);text-decoration:none;font-weight:600;font-size:.85rem;background:var(--surface)}
+.ig-pill:hover{border-color:var(--green);color:var(--green)}
+.ig-card{display:none;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:6px;
+  background:var(--surface);color:var(--fg);text-decoration:none}
+.ig-card:hover{border-color:var(--green)}
+.ig-card .ig-ico{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--green);font-size:1.4rem}
+.ig-card .ig-txt{display:grid;gap:1px;min-width:0;flex:1}
+.ig-card strong{font-family:var(--display);font-weight:800;font-size:1.25rem;text-transform:uppercase;line-height:1.05}
+.ig-card .ig-handle{color:var(--muted);font-size:.85rem;overflow-wrap:anywhere}
+.ig-card .ig-go{font-weight:700;color:var(--green);white-space:nowrap}
+@media (max-width:560px){.ig-pill{display:none}.ig-card{display:flex}}
 </style>
 </head>
 <body>
@@ -358,7 +373,7 @@ html,body{overflow-x:hidden}
       <h1>Grün-Weiß <span>am Spieltag</span></h1>
       <nav class="team-tabs" aria-label="Mannschaft wählen"><a href="#erste" data-team="1" aria-current="page">1. Mannschaft</a><a href="#zweite" data-team="2">2. Mannschaft</a></nav>
     </div>
-    <a class="shop-pill" href="https://team.jako.com/de-de/team/fc_mittenwald/?item_source=7937" target="_blank" rel="noopener"><span aria-hidden="true">👕</span> Fanshop</a>
+    <div class="head-links"><a class="shop-pill" href="https://team.jako.com/de-de/team/fc_mittenwald/?item_source=7937" target="_blank" rel="noopener"><span aria-hidden="true">👕</span> Fanshop</a><a class="ig-pill" href="https://www.instagram.com/fc_mittenwald_herren/" target="_blank" rel="noopener"><span aria-hidden="true">📸</span> Instagram</a></div>
   </header>
 
   <!-- Nächstes Spiel -->
@@ -523,6 +538,12 @@ M42 186 H48 L47.2 203 H42.8 Z"/>
       <span class="shop-sub">Trikots, Trainingsanzüge und Fanartikel vom FC Mittenwald, direkt bei JAKO bestellen.</span>
     </span>
     <span class="shop-btn"><span class="btn-lg">Zum Fanshop</span><span class="btn-sm">Shop</span> <span aria-hidden="true">→</span></span>
+  </a>
+
+  <a class="ig-card" href="https://www.instagram.com/fc_mittenwald_herren/" target="_blank" rel="noopener">
+    <span class="ig-ico" aria-hidden="true">📸</span>
+    <span class="ig-txt"><strong>Folg uns auf Instagram</strong><span class="ig-handle">@fc_mittenwald_herren · Spieltage, Tore, Bilder</span></span>
+    <span class="ig-go" aria-hidden="true">→</span>
   </a>
 
 
