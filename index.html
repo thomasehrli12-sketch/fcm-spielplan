@@ -794,6 +794,61 @@ M42 186 H48 L47.2 203 H42.8 Z"/>
     }
   }
   tick(); setInterval(tick,30000);
+
+  /* Wetter am Spieltag: live von Open-Meteo (bei jedem Seitenaufruf, ohne Server) */
+  (function(){
+    if(!window.fetch) return;
+    var WX={0:["☀️","Sonnig"],1:["🌤️","Heiter"],2:["⛅","Wolkig"],3:["☁️","Bedeckt"],45:["🌫️","Nebel"],48:["🌫️","Nebel"],
+      51:["🌦️","Nieselregen"],53:["🌦️","Nieselregen"],55:["🌦️","Nieselregen"],56:["🌧️","Gefrierender Niesel"],57:["🌧️","Gefrierender Niesel"],
+      61:["🌧️","Leichter Regen"],63:["🌧️","Regen"],65:["🌧️","Starker Regen"],66:["🌧️","Gefrierender Regen"],67:["🌧️","Gefrierender Regen"],
+      71:["🌨️","Leichter Schneefall"],73:["🌨️","Schneefall"],75:["🌨️","Starker Schneefall"],77:["🌨️","Schneegriesel"],
+      80:["🌦️","Regenschauer"],81:["🌦️","Regenschauer"],82:["🌧️","Starke Schauer"],85:["🌨️","Schneeschauer"],86:["🌨️","Schneeschauer"],
+      95:["⛈️","Gewitter"],96:["⛈️","Gewitter mit Hagel"],99:["⛈️","Gewitter mit Hagel"]};
+    var WT=["So","Mo","Di","Mi","Do","Fr","Sa"];
+    function pad(n){return (n<10?"0":"")+n;}
+    function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+    function getJSON(u){return fetch(u).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});}
+    function place(box,wx){
+      var lat=parseFloat(wx.getAttribute("data-lat")), lon=parseFloat(wx.getAttribute("data-lon"));
+      if(!isNaN(lat)&&!isNaN(lon)) return Promise.resolve({lat:lat,lon:lon});
+      var dd=box.querySelectorAll(".m-info dd"); if(!dd[2]) return Promise.reject(new Error("kein Ort"));
+      var addr=dd[2].innerHTML.split(/<br\s*\/?>/i).pop().replace(/<[^>]+>/g,"").replace(/&nbsp;/g," ");
+      var ort=addr.split(",").pop().replace(/\d{5}/,"").trim(); if(!ort) return Promise.reject(new Error("kein Ort"));
+      return getJSON("https://geocoding-api.open-meteo.com/v1/search?count=10&language=de&countryCode=DE&name="+encodeURIComponent(ort)).then(function(j){
+        var r=(j.results||[]); if(!r.length) throw new Error("Ort unbekannt");
+        var by=r.filter(function(x){return x.admin1==="Bayern";})[0]||r[0];
+        return {lat:by.latitude,lon:by.longitude};
+      });
+    }
+    function update(t){
+      var box=document.querySelector(".board > div.t"+t), cd=document.querySelector(".countdown.t"+t);
+      var wx=box&&box.querySelector(".wx"); if(!wx||!cd) return;
+      var kick=new Date(cd.getAttribute("data-kick")); if(isNaN(kick)||kick<new Date()) return;
+      var day=cd.getAttribute("data-kick").slice(0,10);
+      var today=new Date(); today.setHours(0,0,0,0);
+      var ahead=Math.round((new Date(day+"T00:00:00")-today)/86400000);
+      var ico=wx.querySelector(".wx-ico"), txt=wx.querySelector(".wx-txt"), src=wx.querySelector(".wx-src");
+      var lbl='<span class="wx-lbl">Wetter am Spieltag</span>';
+      if(ahead>8){
+        var f=new Date(day+"T12:00:00"); f.setDate(f.getDate()-8);
+        ico.textContent="📅"; txt.innerHTML=lbl+"Vorhersage ab "+WT[f.getDay()]+", "+pad(f.getDate())+"."+pad(f.getMonth()+1)+". verfügbar";
+        return;
+      }
+      place(box,wx).then(function(p){
+        return getJSON("https://api.open-meteo.com/v1/forecast?latitude="+p.lat+"&longitude="+p.lon+
+          "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=Europe%2FBerlin&forecast_days=16");
+      }).then(function(j){
+        var d=j.daily, i=d.time.indexOf(day); if(i<0) return;
+        var w=WX[d.weather_code[i]]||["⛅","Wechselhaft"];
+        var s=lbl+"<b>"+esc(w[1])+"</b> · "+Math.round(d.temperature_2m_min[i])+" bis "+Math.round(d.temperature_2m_max[i])+" °C";
+        var pp=d.precipitation_probability_max[i], ps=d.precipitation_sum[i];
+        if(pp!=null&&ps!=null&&(pp>0||ps>0)) s+=" · Regen "+pp+" % ("+String(Math.round(ps*10)/10).replace(".",",")+" l/m²)";
+        ico.textContent=w[0]; txt.innerHTML=s;
+        if(src){ src.href="https://open-meteo.com/"; src.textContent="Open-Meteo"; }
+      }).catch(function(){ /* offline oder blockiert: gespeicherten Text stehen lassen */ });
+    }
+    update("1"); update("2");
+  })();
 })();
 </script>
 
